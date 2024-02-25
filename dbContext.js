@@ -8,9 +8,7 @@ request.onupgradeneeded = (event) => {
   db = event.target.result;
   if (event.oldVersion < 1) {
     // RecordSet is the parent object for Records.
-    const recordSetStore = db.createObjectStore("recordSet", {
-      autoIncrement: true,
-    });
+    const recordSetStore = db.createObjectStore("recordSet", { keyPath: "id" });
     recordSetStore.createIndex("domain", "domain", { unique: false });
 
     // Records are the individual data points that are collected.
@@ -58,6 +56,25 @@ window.dbContext = {
     };
   },
 
+  addRecordSetWithFocus(recordSet, onsuccess = () => {}) {
+    recordSet.isFocused = true;
+    dbContext.addRecordSet(recordSet, (recordSet) => {
+      dbContext.setRecordSetFocus(recordSet.domain, recordSet.id, onsuccess);
+    });
+  },
+
+  setRecordSetFocus(domain, recordSetId, onsuccess = () => {}) {
+    dbContext.getRecordSetsByDomain(domain, (records) => {
+      const updatedRecords = records.map((set) => {
+        return {
+          ...set,
+          isFocused: set.id === recordSetId,
+        };
+      });
+      dbContext.bulkUpdateRecordSets(updatedRecords, onsuccess);
+    });
+  },
+
   /**
    * Adds a RecordSet object to the database.
    * @param {RecordSet} recordSet The object to add to the database.
@@ -68,7 +85,12 @@ window.dbContext = {
     const recordSets = transaction.objectStore("recordSet");
     const request = recordSets.add(recordSet);
     request.onsuccess = (event) => {
-      onsuccess(event.target.result);
+      // Get the ID of the added recordSet
+      const id = event.target.result;
+      // Add the ID to the recordSet object
+      recordSet.id = id;
+      // Call the onsuccess function with the recordSet object
+      onsuccess(recordSet);
     };
   },
 
@@ -83,6 +105,25 @@ window.dbContext = {
     const request = recordSets.put(recordSet);
     request.onsuccess = (event) => {
       onsuccess(event.target.result);
+    };
+  },
+
+  bulkUpdateRecordSets(recordSets, onsuccess = () => {}) {
+    console.log("bulk update record sets", recordSets);
+    const transaction = db.transaction("recordSet", "readwrite");
+    const store = transaction.objectStore("recordSet");
+
+    recordSets.forEach((recordSet) => {
+      store.put(recordSet);
+    });
+
+    transaction.oncomplete = function (event) {
+      console.log("Transaction completed: ", event);
+      onsuccess(event);
+    };
+
+    transaction.onerror = function (event) {
+      console.error("Transaction failed: ", event.target.error);
     };
   },
 

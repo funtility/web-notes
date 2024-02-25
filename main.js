@@ -41,29 +41,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
 let tabView = new TabView();
 
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
+  if (request.type == "openPopup") {
+    await processTab(request.tab);
+  }
+});
+
 /**
  * Listens for when a tab is activated.
  * This is for new tabs and when the user switches tabs.
  */
-chrome.tabs.onActivated.addListener(function (activeInfo) {
-  activeTabId = activeInfo.tabId;
-  chrome.tabs.get(activeInfo.tabId, async function (tab) {
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  let tabId = activeInfo.tabId;
+  activeTabId = tabId;
+  chrome.tabs.get(tabId, async function (tab) {
     if (tab.url) {
       await processTab(tab);
     }
   });
-});
-
-/**
- * This is for when the URL of a tab is changed.
- * E.G. A refresh or a new URL (such as search result is loaded) is entered.
- */
-chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
-  activeTabId = tabId;
-  // If the tab's URL has been updated
-  if (changeInfo.url) {
-    await processTab(tab);
-  }
 });
 
 //#endregion
@@ -71,7 +70,6 @@ chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
 //#region TabView
 
 async function processTab(tab) {
-  console.log("processTab", tab);
   const tabInfo = new TabInfo().fromTab(tab);
   if (tabInfo.isNotRestricted) {
     await updateTabView(tabInfo);
@@ -149,7 +147,6 @@ class TabViewComponent {
   }
 
   get recordSetViews() {
-    console.log("recordSetViews");
     const recordSetViews = document.createElement("div");
     recordSetViews.appendChild(this.newRecordSetInput());
     recordSetViews.classList.add("recordset-views");
@@ -167,26 +164,22 @@ class TabViewComponent {
     input.placeholder =
       "Enter a title to add a new notepad for: " + this.tabView.domain;
     input.dataset.domain = this.tabView.domain;
-    input.addEventListener("blur", function () {
-      console.log("blur", this.value);
-      // save the new record set
-      dbContext.addRecordSet(
-        new RecordSet({
-          title: this.value,
-          domain: this.dataset.domain,
-        })
-      );
-    });
     input.addEventListener("keyup", function (event) {
       if (event.key === "Enter") {
-        console.log("enter");
         // save the new record set
-        // swap this element with a header
+        console.log("add record set", this.value);
+        dbContext.addRecordSetWithFocus(
+          new RecordSet({
+            title: this.value,
+            domain: this.dataset.domain,
+            isFocused: true,
+          })
+        );
+        // refresh the tab view
+        updateTabViewComponent();
       }
       if (event.key === "Escape") {
-        console.log("escape");
-        // cancel the edit
-        // remove this element
+        updateTabViewComponent();
       }
     });
     return input;

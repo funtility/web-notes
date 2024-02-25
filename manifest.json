@@ -1,13 +1,39 @@
 {
-   "manifest_version": 2,
+   "manifest_version": 3,
    "name": "Web Notes",
    "version": "1.0",
    "description": "A browser extension for keeping notes that are loosely associates with a specific domain.",
+   "host_permissions": ["http://*/*", "https://*/*"],
    "permissions": ["activeTab", "windows", "background", "storage", "tabs"],
-   "web_accessible_resources": [
-    "img/icon16.png"
+   "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["main.js"]
+    }
   ],
-   "browser_action": {
+   "web_accessible_resources": [
+    { 
+      "id": "icons",
+      "resources": ["img/icon16.png", "img/icon48.png", "img/icon128.png"],
+      "matches": ["<all_urls>"]
+    },
+    {
+      "id": "html",
+      "resources": ["popup.html"],
+      "matches": ["<all_urls>"]
+    },
+    {
+      "id": "js",
+      "resources": ["popup.js", "background.js", "classes.js", "dbContext.js", "viewModels.js"],
+      "matches": ["<all_urls>"]
+    },
+    {
+      "id": "css",
+      "resources": ["popup.css"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+   "action": {
     "default_icon": {
       "16": "img/icon16.png",
       "48": "img/icon48.png",
@@ -15,11 +41,6 @@
     }
    },
    "background": {
-     "scripts": [
-      "background.js",
-      "classes.js",
-      "dbContext.js",
-      "viewModels.js"],
-     "persistent": true
+    "service_worker": "background.js"
    }
  }
