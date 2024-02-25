@@ -1,0 +1,25 @@
+{
+   "manifest_version": 2,
+   "name": "Web Notes",
+   "version": "1.0",
+   "description": "A browser extension for keeping notes that are loosely associates with a specific domain.",
+   "permissions": ["activeTab", "windows", "background", "storage", "tabs"],
+   "web_accessible_resources": [
+    "img/icon16.png"
+  ],
+   "browser_action": {
+    "default_icon": {
+      "16": "img/icon16.png",
+      "48": "img/icon48.png",
+      "128": "img/icon128.png"
+    }
+   },
+   "background": {
+     "scripts": [
+      "background.js",
+      "classes.js",
+      "dbContext.js",
+      "viewModels.js"],
+     "persistent": true
+   }
+ }

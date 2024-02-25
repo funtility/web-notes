@@ -1,0 +1,17 @@
+{
+   "[javascript]": {
+     "editor.tabSize": 2,
+     "editor.formatOnSave": true,
+     "editor.defaultFormatter": "esbenp.prettier-vscode"
+   },
+   "[html]": {
+     "editor.tabSize": 2,
+     "editor.formatOnSave": true,
+     "editor.defaultFormatter": "esbenp.prettier-vscode"
+   },
+   "[css]": {
+     "editor.tabSize": 2,
+     "editor.formatOnSave": true,
+     "editor.defaultFormatter": "esbenp.prettier-vscode"
+   }
+ }

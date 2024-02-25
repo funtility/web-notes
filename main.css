@@ -1,0 +1,46 @@
+body {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.hidden {
+  display: none;
+}
+#menu-bar {
+  display: inline-flex;
+  background-color: #f0f0f0;
+  border-top: 1px solid #d0d0d0;
+  width: 100%;
+}
+#file-menu-dropdown {
+  position: absolute;
+  background-color: #f0f0f0;
+  z-index: 1;
+}
+#file-menu-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+button {
+  cursor: pointer;
+  border: none;
+  padding: 3px 6px;
+  margin: 0;
+}
+button:hover {
+  background-color: #e0e0e0;
+}
+
+#content {
+  padding: 6px;
+}
+
+.recordset-views > input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 3px 6px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+}
